@@ -1,0 +1,84 @@
+infosLigne{
+mouvement
+genre
+index
+tabVacc = ARRAY(600)
+}
+
+module(Main;pathDataSubjectsInfo, paths;)
+---*
+module(getGenders;pathDataSubjectsInfo;tabGenders)
+iDossier = 0
+index = 1
+while (iDossier < 16)
+
+infosLigne.mouvement = paths[iDossier]
+// on retire la partie "/" du tableau pour le nom du mouvement
+
+iFichier = 1
+while (iFichier <= 24)
+
+infosLigne.genre = tabGenres[iFichier-1]
+infosLigne.index = index
+
+fichier = paths[0] + "sub_" + iFichier + ".csv"
+
+module(LectureFichier;fichier, infosLigne ;infosLigne)
+
+if (Fonction aléatoire 10% pour que 10% des données entrent dans la condition)
+path = "trainSet.csv"
+else
+path = "dataSet.csv"
+----
+
+module(EcritureFichier;path, infosLigne;)
+
+index++
+iFichier++
+----
+iDossier++
+----
+----
+
+module(getGenders;path;tabGenders)
+---*
+tabGenders = ARRAY(24)
+fichier = open(path)
+iLigne = 0
+while (!feof fichier)
+if (iLigne != 0)
+tabGenders[iLigne-1] = récupération de l'élément en dernière colonne
+----
+iLigne++
+----
+----
+
+module(LectureFichier;path, infosLigne ;infosLigne)
+---*
+fichier = open(path)
+iLigneFichier = 0
+// trouver un moyen de passer la première ligne inutile
+while (iLigneFichier < 600)
+x = récupération de l'élément de la colone accX
+y = récupération de l'élément de la colone accY
+z = récupération de l'élément de la colone accZ
+infosLigne.tabVacc[iLigneFichier] = sqrt(x*x + y*y + z*z)
+iLigneFichier++
+----
+close(fichier)
+----
+
+module(EcritureFichier;path, infoLigne;)
+---*
+fichier = open(path)
+
+fichier += infosLigne.mouvement + "," + infosLigne.genre + "," + infosLigne.index
+i = 0
+while (i < 600)
+fichier += "," + infosLigne.tabVacc[i] 
+i++
+----
+fichier += "\n"
+
+close(fichier)
+----
