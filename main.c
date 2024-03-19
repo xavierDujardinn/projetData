@@ -126,7 +126,6 @@ InfosLigneSet lireFichier(char* path) {
 
             }
             
-            
             infosLigneSet.tabVAcc[row-1] = sqrt(pow(infosLigneSub.userAccelerationX,2) + pow(infosLigneSub.userAccelerationY,2) + pow(infosLigneSub.userAccelerationY,2));
         }
     }
@@ -162,9 +161,51 @@ void ecrireSet(char* path, InfosLigneSet infosLigneSet){
     fclose(fp);
 }
 
+void getTabGenders(int* tabGenders){
+    FILE* fp;
+
+    fopen_s(&fp, "data_subjects_info.csv", "r");
+    if (fp == NULL) {
+        fprintf(stderr, "Error reading file\n");
+    }
+     else {
+        // Here we have taken size of
+        // array 1024 you can modify it
+        char buffer[1024];
+ 
+        int row = 0;
+        int column = 0;
+        double info;
+ 
+        while (fgets(buffer,
+                     1024, fp)) {
+            column = 0;
+            row++;
+ 
+            // To avoid printing of column
+            // names in file can be changed
+            // according to need    
+           
+            if (row == 1) continue;
+ 
+            // Splitting the data
+            char* value = strtok(buffer, "; ");
+ 
+            while (value) {
+                if (column == 4){
+                    tabGenders[row-2] = atoi(value);
+                }
+                value = strtok(NULL, "; ");
+                column++;
+
+            } 
+        }
+    }
+}
+
 void main(void){
+    int tabGenders[24];
+    getTabGenders(tabGenders);
     InfosLigneSet infosLigneSet = lireFichier("A_DeviceMotion_data/A_DeviceMotion_data/dws_1/sub_1.csv");
     ecrireSet("testSet.csv", infosLigneSet);
 }
-
-// "testSet.csv"
