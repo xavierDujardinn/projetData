@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <math.h>
 
+#define LGPATH 6
+
 typedef struct infosLigneSub InfosLigneSub;
 struct infosLigneSub{
     int numLigne;
@@ -26,6 +28,8 @@ struct infosLigneSet{
     int index;
     double tabVAcc[600];
 };
+
+char paths[15][LGPATH] = {"dws_1", "dws_2", "dws_11", "jog_9", "jog_16", "sit_5", "sit_13", "std_6", "std_14", "ups_3", "ups_4", "ups_12", "wlk_7", "wlk_8", "wlk_15"};
 
 InfosLigneSet lireFichier(char* path) {
     FILE *fp;
@@ -136,6 +140,23 @@ InfosLigneSet lireFichier(char* path) {
 void ecrireSet(char* path, InfosLigneSet infosLigneSet){
     FILE* fp;
 
+    fopen_s(&fp, path, "a");
+
+    // impression pour chaque ligne
+    fprintf_s(fp, ",,");
+
+    int i = 0;
+    while (i < 600){
+        fprintf_s(fp,",%.2lf", infosLigneSet.tabVAcc[i]);
+        i++;
+    }
+    fprintf_s(fp, "\n");
+
+    fclose(fp);
+}
+
+void initialisationSet(char* path){
+    FILE* fp;
     fopen_s(&fp, path, "w");
 
     // initialisation fichier
@@ -143,17 +164,6 @@ void ecrireSet(char* path, InfosLigneSet infosLigneSet){
     int i = 0;
     while (i < 600){
         fprintf_s(fp,",Vacc");
-        i++;
-    }
-    fprintf_s(fp, "\n");
-
-
-    // impression pour chaque ligne
-    fprintf_s(fp, ",,");
-
-    i = 0;
-    while (i < 600){
-        fprintf_s(fp,",%.2lf", infosLigneSet.tabVAcc[i]);
         i++;
     }
     fprintf_s(fp, "\n");
@@ -207,5 +217,7 @@ void main(void){
     int tabGenders[24];
     getTabGenders(tabGenders);
     InfosLigneSet infosLigneSet = lireFichier("A_DeviceMotion_data/A_DeviceMotion_data/dws_1/sub_1.csv");
+    initialisationSet("testSet.csv");
+    initialisationSet("dataSet.csv");
     ecrireSet("testSet.csv", infosLigneSet);
 }
