@@ -27,12 +27,12 @@ struct infosLigneSet{
     double tabVAcc[600];
 };
 
-InfosLigneSet lireFichier(void) {
+InfosLigneSet lireFichier(char* path) {
     FILE *fp;
 
     InfosLigneSet infosLigneSet;
 
-    fp = fopen("sub_1.csv", "r");
+    fp = fopen(path, "r");
     if (fp == NULL) {
         fprintf(stderr, "Error reading file\n");
     }
@@ -163,7 +163,7 @@ void ecrireSet(char* path, InfosLigneSet infosLigneSet){
 }
 
 void main(void){
-    InfosLigneSet infosLigneSet = lireFichier();
+    InfosLigneSet infosLigneSet = lireFichier("A_DeviceMotion_data/A_DeviceMotion_data/dws_1/sub_1.csv");
     ecrireSet("testSet.csv", infosLigneSet);
 }
 
