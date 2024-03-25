@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include<windows.h>
 
-#define LGPATH 6
+#define LGPATH 8
 
 typedef struct infosLigneSub InfosLigneSub;
 struct infosLigneSub{
@@ -29,7 +30,7 @@ struct infosLigneSet{
     double tabVAcc[600];
 };
 
-char paths[15][LGPATH] = {"dws_1", "dws_2", "dws_11", "jog_9", "jog_16", "sit_5", "sit_13", "std_6", "std_14", "ups_3", "ups_4", "ups_12", "wlk_7", "wlk_8", "wlk_15"};
+char paths[15][LGPATH] = {"dws_1/", "dws_2/", "dws_11/", "jog_9/", "jog_16/", "sit_5/", "sit_13/", "std_6/", "std_14/", "ups_3/", "ups_4/", "ups_12/", "wlk_7/", "wlk_8/", "wlk_15/"};
 
 InfosLigneSet lireFichier(char* path) {
     FILE *fp;
@@ -38,7 +39,7 @@ InfosLigneSet lireFichier(char* path) {
 
     fp = fopen(path, "r");
     if (fp == NULL) {
-        fprintf(stderr, "Error reading file\n");
+        fprintf(stderr, "Error reading file lireFichier\n");
     }
      else {
         // Here we have taken size of
@@ -123,15 +124,17 @@ InfosLigneSet lireFichier(char* path) {
                     }
                 }
 
-                
-
                 value = strtok(NULL, ", ");
                 column++;
 
             }
             
-            infosLigneSet.tabVAcc[row-1] = sqrt(pow(infosLigneSub.userAccelerationX,2) + pow(infosLigneSub.userAccelerationY,2) + pow(infosLigneSub.userAccelerationY,2));
+            infosLigneSet.tabVAcc[row-2] = sqrt(pow(infosLigneSub.userAccelerationX,2) + pow(infosLigneSub.userAccelerationY,2) + pow(infosLigneSub.userAccelerationY,2));
         }
+        while(row < 601){
+                infosLigneSet.tabVAcc[row-1] = 0; 
+                row++;
+            }
     }
     fclose(fp);
     return infosLigneSet;
@@ -140,19 +143,28 @@ InfosLigneSet lireFichier(char* path) {
 void ecrireSet(char* path, InfosLigneSet infosLigneSet){
     FILE* fp;
 
-    fopen_s(&fp, path, "a");
-
-    // impression pour chaque ligne
-    fprintf_s(fp, ",,");
-
-    int i = 0;
-    while (i < 600){
-        fprintf_s(fp,",%.2lf", infosLigneSet.tabVAcc[i]);
-        i++;
+    fp = fopen(path, "a");
+    if (fp == NULL) {
+        fprintf(stderr, "Error reading file ecritureSet\n");
     }
-    fprintf_s(fp, "\n");
+    else{
+        // impression pour chaque ligne
+        fprintf_s(fp, "%d,%d,%d", infosLigneSet.mouvement, infosLigneSet.genre, infosLigneSet.index);
 
-    fclose(fp);
+        int i = 0;
+        while (i < 600){
+            if (infosLigneSet.tabVAcc[i] == 0){
+                break;
+            } 
+            else{
+                fprintf_s(fp,",%lf", infosLigneSet.tabVAcc[i]);
+            }
+            i++;
+        }
+        fprintf_s(fp, "\n");
+        
+        fclose(fp);
+    }
 }
 
 void initialisationSet(char* path){
@@ -171,12 +183,12 @@ void initialisationSet(char* path){
     fclose(fp);
 }
 
-void getTabGenders(int* tabGenders){
+void getTabGenders(int tabGenders[24]){
     FILE* fp;
 
     fopen_s(&fp, "data_subjects_info.csv", "r");
     if (fp == NULL) {
-        fprintf(stderr, "Error reading file\n");
+        fprintf(stderr, "Error reading file tabGenders\n");
     }
      else {
         // Here we have taken size of
@@ -207,17 +219,91 @@ void getTabGenders(int* tabGenders){
                 }
                 value = strtok(NULL, "; ");
                 column++;
-
             } 
         }
     }
 }
 
+/*
+-----------------------------------------------------------------------
+ changer la ", " en "; " dans getTabGenders (2 fois) si problème avec tabGenders
+-----------------------------------------------------------------------
+*/
+
+
 void main(void){
     int tabGenders[24];
     getTabGenders(tabGenders);
-    InfosLigneSet infosLigneSet = lireFichier("A_DeviceMotion_data/A_DeviceMotion_data/dws_1/sub_1.csv");
     initialisationSet("testSet.csv");
-    initialisationSet("dataSet.csv");
-    ecrireSet("testSet.csv", infosLigneSet);
+    initialisationSet("dataSet.csv");    
+
+    char path[100] = "A_DeviceMotion_data/A_DeviceMotion_data/";
+    char sub[10];
+
+    int index = 1;
+    int iFichier;
+    int iDossier = 0;
+    while (iDossier < 15){
+        iFichier = 1;
+
+        while (iFichier <= 24){
+            strcat(path, paths[iDossier]);
+            sprintf_s(sub, sizeof(char)*11,"sub_%d.csv", iFichier);
+            strcat(path, sub);
+            printf("%s\n", path);
+
+            InfosLigneSet infosLigneSet = lireFichier(path);
+
+            infosLigneSet.genre = tabGenders[iFichier-1];
+            infosLigneSet.index = index;
+            switch(iDossier){
+                case 0 :
+                case 1 :
+                case 2 :
+                    infosLigneSet.mouvement = 1; 
+                
+                break;
+                case 3 :
+                case 4 :
+                    infosLigneSet.mouvement = 2;
+                
+                break;
+                case 5 :
+                case 6 :
+                    infosLigneSet.mouvement = 3;
+                
+                break;
+                case 7 :
+                case 8 :
+                    infosLigneSet.mouvement = 4;
+                
+                break;
+                case 9:
+                case 10: 
+                case 11:
+                    infosLigneSet.mouvement = 5;
+                
+                break;
+                case 12: 
+                case 13:
+                case 14:
+                    infosLigneSet.mouvement = 6;
+                break;
+             };
+
+            if(iFichier % 10 == 0 || (iFichier == 3  && fmod(iDossier,3) == 0) || (iFichier == 1 && iDossier == 1)){
+                printf("\t%s %s\n", paths[iDossier], sub);
+                ecrireSet("testSet.csv", infosLigneSet); 
+            }
+            else{
+                ecrireSet("dataSet.csv", infosLigneSet);
+            }
+
+            index++;
+            iFichier++;
+            strcpy(path,"A_DeviceMotion_data/A_DeviceMotion_data/");
+            strcpy(sub,"");
+        }
+        iDossier++;
+    }
 }
