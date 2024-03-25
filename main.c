@@ -32,14 +32,14 @@ struct infosLigneSet{
 
 char paths[15][LGPATH] = {"dws_1/", "dws_2/", "dws_11/", "jog_9/", "jog_16/", "sit_5/", "sit_13/", "std_6/", "std_14/", "ups_3/", "ups_4/", "ups_12/", "wlk_7/", "wlk_8/", "wlk_15/"};
 
-InfosLigneSet lireFichier(char* path) {
+InfosLigneSet lireSub(char* path) {
     FILE *fp;
 
     InfosLigneSet infosLigneSet;
 
     fp = fopen(path, "r");
     if (fp == NULL) {
-        fprintf(stderr, "Error reading file lireFichier\n");
+        fprintf(stderr, "Error reading file lireSub\n");
     }
      else {
         // Here we have taken size of
@@ -183,6 +183,87 @@ void initialisationSet(char* path){
     fclose(fp);
 }
 
+void initialisationPattern(char* path){
+    FILE* fp;
+    fopen_s(&fp, path, "w");
+
+    // initialisation fichier
+    fprintf_s(fp, "Mouvement");
+    int i = 0;
+    while (i < 600){
+        fprintf_s(fp,",Vacc");
+        i++;
+    }
+    fprintf_s(fp, "\n");
+
+    fclose(fp);
+}
+
+void lireSet(char* path, InfosLigneSet* tabInfosLigneSet){
+    FILE *fp;
+
+    InfosLigneSet infosLigneSet;
+
+    fp = fopen(path, "r");
+    if (fp == NULL) {
+        fprintf(stderr, "Error reading file lireSet\n");
+    }
+     else {
+        // Here we have taken size of
+        // array 1024 you can modify it
+        char buffer[100000];
+
+        int row = 0;
+        int column = 0;
+        InfosLigneSet infosLigneSet;
+        double info;
+        int mouvement = 1;
+ 
+        while (fgets(buffer,
+                     100000, fp)) {
+            column = 0;
+            row++;
+ 
+            // To avoid printing of column
+            // names in file can be changed
+            // according to need    
+           
+            if (row == 1) continue;
+ 
+            // Splitting the data
+            char* value = strtok(buffer, ", ");
+ 
+            while (value) {
+                switch(column){
+                    case 0:
+                        infosLigneSet.mouvement = atoi(value);
+                    break;
+                    case 1:
+                        infosLigneSet.genre = atoi(value);
+                    break;
+                    case 2:
+                        infosLigneSet.index = atoi(value);
+                    break;
+                    default:
+                            info = strtod(value,NULL);                            
+                            infosLigneSet.tabVAcc[column-4] = info;
+                            tabInfosLigneSet[mouvement-1].tabVAcc[column-4] += info;
+                };
+                value = strtok(NULL, ", ");
+                column++;
+            }
+            if (infosLigneSet.mouvement != mouvement){
+                mouvement++;
+            }
+            else{
+                tabInfosLigneSet[mouvement-1].mouvement = mouvement;
+                
+            }
+        }
+    }
+    fclose(fp);
+}
+
 void getTabGenders(int tabGenders[24]){
     FILE* fp;
 
@@ -224,6 +305,7 @@ void getTabGenders(int tabGenders[24]){
     }
 }
 
+
 /*
 -----------------------------------------------------------------------
  changer la ", " en "; " dans getTabGenders (2 fois) si problème avec tabGenders
@@ -235,7 +317,8 @@ void main(void){
     int tabGenders[24];
     getTabGenders(tabGenders);
     initialisationSet("testSet.csv");
-    initialisationSet("dataSet.csv");    
+    initialisationSet("dataSet.csv");
+    initialisationPattern("pattern.csv");    
 
     char path[100] = "A_DeviceMotion_data/A_DeviceMotion_data/";
     char sub[10];
@@ -252,7 +335,7 @@ void main(void){
             strcat(path, sub);
             printf("%s\n", path);
 
-            InfosLigneSet infosLigneSet = lireFichier(path);
+            InfosLigneSet infosLigneSet = lireSub(path);
 
             infosLigneSet.genre = tabGenders[iFichier-1];
             infosLigneSet.index = index;
@@ -305,5 +388,17 @@ void main(void){
             strcpy(sub,"");
         }
         iDossier++;
+    }
+    InfosLigneSet trainSet[6];
+    for (int iMouvement = 0; iMouvement < 6; iMouvement++){
+        for (int iVacc = 0; iVacc < 600; iVacc++){
+            trainSet[iMouvement].tabVAcc[iVacc] = 0;
+        }
+    }
+    lireSet("testSet.csv", trainSet);
+    int i = 0;
+    while (i < 6){
+        printf("%d", trainSet[i].mouvement);
+        i++;
     }
 }
