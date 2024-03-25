@@ -151,8 +151,11 @@ void ecrireSet(char* path, InfosLigneSet infosLigneSet){
         // impression pour chaque ligne
         fprintf_s(fp, "%d,%d,%d", infosLigneSet.mouvement, infosLigneSet.genre, infosLigneSet.index);
 
-        int i = 0;
-        while (i < 600){
+        for (int i = 0; i < 600; i++) {
+        {
+            /* code */
+        }
+        
             if (infosLigneSet.tabVAcc[i] == 0){
                 break;
             } 
@@ -305,6 +308,36 @@ void getTabGenders(int tabGenders[24]){
     }
 }
 
+/*
+----------------------------------------------------------------------
+    PHASE 2
+----------------------------------------------------------------------
+*/
+void ecrirePatterns(char* path, InfosLigneSet infosLigneSet){
+    FILE* fp;
+
+    fp = fopen(path, "a");
+    if (fp == NULL) {
+        fprintf(stderr, "Error reading file ecriturePatternt\n");
+    }
+    else{
+        // impression pour chaque ligne
+        fprintf_s(fp, "%d", infosLigneSet.mouvement);
+
+        for (int i = 0; i < 600; i++) {
+            if (infosLigneSet.tabVAcc[i] == 0){
+                break;
+            } 
+            else{
+                fprintf_s(fp,",%lf", infosLigneSet.tabVAcc[i]);
+            }
+            i++;
+        }
+        fprintf_s(fp, "\n");
+        
+        fclose(fp);
+    }
+}
 
 /*
 -----------------------------------------------------------------------
@@ -316,9 +349,9 @@ void getTabGenders(int tabGenders[24]){
 void main(void){
     int tabGenders[24];
     getTabGenders(tabGenders);
-    initialisationSet("testSet.csv");
-    initialisationSet("dataSet.csv");
-    initialisationPattern("pattern.csv");    
+    initialisationSet("trainSet.csv");
+    initialisationSet("testSet.csv");    
+    initialisationPattern("pattern.csv");
 
     char path[100] = "A_DeviceMotion_data/A_DeviceMotion_data/";
     char sub[10];
@@ -376,10 +409,10 @@ void main(void){
 
             if(iFichier % 10 == 0 || (iFichier == 3  && fmod(iDossier,3) == 0) || (iFichier == 1 && iDossier == 1)){
                 printf("\t%s %s\n", paths[iDossier], sub);
-                ecrireSet("testSet.csv", infosLigneSet); 
+                ecrireSet("trainSet.csv", infosLigneSet); 
             }
             else{
-                ecrireSet("dataSet.csv", infosLigneSet);
+                ecrireSet("testSet.csv", infosLigneSet);
             }
 
             index++;
