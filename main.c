@@ -131,11 +131,12 @@ InfosLigneSet lireSub(char* path) {
             infosLigneSet.tabVAcc[row-2] = sqrt(pow(infosLigneSub.userAccelerationX,2) + pow(infosLigneSub.userAccelerationY,2) + pow(infosLigneSub.userAccelerationY,2));
         }
         while(row < 601){
-                infosLigneSet.tabVAcc[row-1] = 0; 
-                row++;
-            }
+            infosLigneSet.tabVAcc[row-1] = 0; 
+            row++;
+        }
+
+        fclose(fp);
     }
-    fclose(fp);
     return infosLigneSet;
 }
 
@@ -218,8 +219,8 @@ void getTabGenders(int tabGenders[24]){
                 column++;
             } 
         }
+        fclose(fp); 
     }
-    fclose(fp); 
 }
 
 /*
@@ -305,10 +306,9 @@ void lireSet(char* path, InfosLigneSet* tabInfosLigneSet){
                 tabInfosLigneSet[mouvement].tabVAcc[iVacc] /= tabNbMouvements[mouvement];
             }
         }
+        
+        fclose(fp);
     }
-
-   
-    fclose(fp);
 }
 
 void ecrirePatterns(char* path, InfosLigneSet infosLigneSet){
