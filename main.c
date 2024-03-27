@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include<windows.h>
 
 #define LGPATH 8
 
@@ -29,7 +28,7 @@ struct infosLigneSet{
     int index;
     double tabVAcc[600];
 };
-
+    
 char paths[15][LGPATH] = {"dws_1/", "dws_2/", "dws_11/", "jog_9/", "jog_16/", "sit_5/", "sit_13/", "std_6/", "std_14/", "ups_3/", "ups_4/", "ups_12/", "wlk_7/", "wlk_8/", "wlk_15/"};
 
 InfosLigneSet lireSub(char* path) {
@@ -152,10 +151,6 @@ void ecrireSet(char* path, InfosLigneSet infosLigneSet){
         fprintf_s(fp, "%d,%d,%d", infosLigneSet.mouvement, infosLigneSet.genre, infosLigneSet.index);
 
         for (int i = 0; i < 600; i++) {
-        {
-            /* code */
-        }
-        
             if (infosLigneSet.tabVAcc[i] == 0){
                 break;
             } 
@@ -224,6 +219,7 @@ void getTabGenders(int tabGenders[24]){
             } 
         }
     }
+    fclose(fp); 
 }
 
 /*
@@ -238,10 +234,8 @@ void initialisationPattern(char* path){
 
     // initialisation fichier
     fprintf_s(fp, "Mouvement");
-    int i = 0;
-    while (i < 600){
+    for (int i = 0; i < 600; i++){
         fprintf_s(fp,",Vacc");
-        i++;
     }
     fprintf_s(fp, "\n");
 
@@ -322,7 +316,7 @@ void ecrirePatterns(char* path, InfosLigneSet infosLigneSet){
 
     fp = fopen(path, "a");
     if (fp == NULL) {
-        fprintf(stderr, "Error reading file ecriturePatternt\n");
+        fprintf(stderr, "Error reading file ecriturePatterns\n");
     }
     else{
         // impression pour chaque ligne
@@ -354,7 +348,6 @@ void main(void){
     getTabGenders(tabGenders);
     initialisationSet("trainSet.csv");
     initialisationSet("testSet.csv");    
-    initialisationPattern("pattern.csv");
 
     char path[100] = "A_DeviceMotion_data/A_DeviceMotion_data/";
     char sub[10];
@@ -428,6 +421,7 @@ void main(void){
     /*------------------------
             PHASE 2
     ------------------------*/
+    initialisationPattern("pattern.csv");
     InfosLigneSet tabTrainSet[6];
     for (int iMouvement = 0; iMouvement < 6; iMouvement++){
         for (int iVacc = 0; iVacc < 600; iVacc++){
