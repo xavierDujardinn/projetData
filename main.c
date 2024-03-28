@@ -405,10 +405,10 @@ void main(void){
 
             if(iFichier % 10 == 0 || (iFichier == 3  && fmod(iDossier,3) == 0) || (iFichier == 1 && iDossier == 1)){
                 printf("\t%s %s\n", paths[iDossier], sub);
-                ecrireSet("trainSet.csv", infosLigneSet); 
+                ecrireSet("testSet.csv", infosLigneSet); 
             }
             else{
-                ecrireSet("testSet.csv", infosLigneSet);
+                ecrireSet("trainSet.csv", infosLigneSet);
             }
 
             index++;
