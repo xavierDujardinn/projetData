@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <float.h>
 
 #define LGPATH 8
 
@@ -439,8 +440,18 @@ void lireTestSet(FILE* fp, InfosLigneSet* tabInfosLigneSet){
 void displayResultForEachClass(int* realClasses, int* estimatedClasses, int nbTests){
     printf("REAL CLASSES\tESTIMATED CLASSES");
     for (int i = 0; i < nbTests; i++){
-        printf("\n%d\t\t%d", realClasses[i], estimatedClasses[i]);
+        printf("\n%d : %d\t\t%d", i + 1 ,realClasses[i], estimatedClasses[i]);
     }
+}
+
+void displayAccuracy(int * realClasses, int* estimatedClasses, int nbTests){
+    double accuracy = 0;
+    for (int i = 0; i < nbTests; i++){
+        if (realClasses[i] == estimatedClasses[i]){
+            accuracy++;
+        }
+    }
+    printf("\nAccuracy : %lf %.lf", (accuracy/nbTests)*100, accuracy);
 }
 
 /*
@@ -468,7 +479,7 @@ void main(void){
             strcat(path, paths[iDossier]);
             sprintf_s(sub, sizeof(char)*11,"sub_%d.csv", iFichier);
             strcat(path, sub);
-            printf("%s\n", path);
+            // printf("%s\n", path);
 
             InfosLigneSet infosLigneSet = lireSub(path);
 
@@ -509,7 +520,7 @@ void main(void){
                 break;
              };
 
-            if(iFichier % 10 == 0 || (iFichier == 3  && fmod(iDossier,3) == 0) || (iFichier == 1 && iDossier == 1)){
+            if(iFichier % 10 == 0 || (iFichier == 3  && fmod(iDossier,3) == 0)){
                 printf("\t%s %s\n", paths[iDossier], sub);
                 ecrireSet("testSet.csv", infosLigneSet); 
             }
@@ -560,14 +571,28 @@ void main(void){
         }
 
         int estimatedClasses[36] = {0,};
+        double temp;
+        double dist;
 
-        // for (int iLigne = 0; iLigne < 36; iLigne++){
-        //     for (int iVacc = 0; iVacc < 600; iVacc++){
-        //         estimatedClasses[iLigne] += pow((testSet[iLigne].tabVAcc[iVacc] - models[]),2)
-        //     }
-        // }
+        for (int iLigne = 0; iLigne < 36; iLigne++){
+            dist = DBL_MAX;
+            for (int iModel = 0; iModel < 6; iModel++){
+                temp = 0;
+                for (int iVacc = 0; iVacc < 600; iVacc++){
+                    temp += pow((testSet[iLigne].tabVAcc[iVacc] - models[iModel].vAcc[iVacc]),2);
+                }
+                temp = sqrt(temp);
+
+                if (temp <= dist) {
+                    dist = temp;
+                    estimatedClasses[iLigne] = iModel + 1;
+                } 
+            }
+            printf("%d : %.4lf\n", iLigne + 1, dist);
+        }
 
         displayResultForEachClass(realClasses,estimatedClasses,36);
+        displayAccuracy(realClasses,estimatedClasses,36);
 
 
 
