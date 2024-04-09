@@ -27,6 +27,7 @@ struct infosLigneSet{
     int genre;
     int index;
     double tabVAcc[600];
+    int nbLignesSet;
 };
     
 char paths[15][LGPATH] = {"dws_1/", "dws_2/", "dws_11/", "jog_9/", "jog_16/", "sit_5/", "sit_13/", "std_6/", "std_14/", "ups_3/", "ups_4/", "ups_12/", "wlk_7/", "wlk_8/", "wlk_15/"};
@@ -243,7 +244,7 @@ void initialisationPattern(char* path){
     fclose(fp);
 }
 
-void lireSet(char* path, InfosLigneSet* tabInfosLigneSet){
+void lireTrainSet(char* path, InfosLigneSet* tabInfosLigneSet){
     FILE *fp;
 
     InfosLigneSet infosLigneSet;
@@ -268,6 +269,7 @@ void lireSet(char* path, InfosLigneSet* tabInfosLigneSet){
                      100000, fp)) {
             column = 0;
             row++;
+            tabInfosLigneSet[0].nbLignesSet = row;
  
             // To avoid printing of column
             // names in file can be changed
@@ -306,7 +308,6 @@ void lireSet(char* path, InfosLigneSet* tabInfosLigneSet){
                 tabInfosLigneSet[mouvement].tabVAcc[iVacc] /= tabNbMouvements[mouvement];
             }
         }
-        
         fclose(fp);
     }
 }
@@ -342,6 +343,111 @@ void ecrirePatterns(char* path, InfosLigneSet infosLigneSet){
 -----------------------------------------------------------------------
 */
 
+/*
+----------------------------------------------------------------------
+    PHASE 3
+----------------------------------------------------------------------
+*/
+
+typedef struct infoLignePattern InfoLignePattern;
+struct infoLignePattern{
+    int mouvement;
+    double vAcc[600];
+};
+
+void lirePattern(FILE* fp, InfoLignePattern* patterns){
+
+    int column;
+    char buffer[10000];
+    double info;
+    int row = 0;
+
+    while (fgets(buffer,
+                    100000, fp)) {
+        column = 0;
+        row++;
+
+        // To avoid printing of column
+        // names in file can be changed
+        // according to need    
+        
+        if (row == 1) continue;
+
+        // Splitting the data
+        char* value = strtok(buffer, ", ");
+        
+        while (value) {
+            switch(column){
+                case 0:
+                    patterns[row-2].mouvement = atoi(value);
+
+                break;
+                default:
+                    patterns[row-2].vAcc[column-1] = strtod(value, NULL);
+
+                break;
+            };
+            value = strtok(NULL, ", ");
+            column++;
+        }
+    }
+}
+
+void lireTestSet(FILE* fp, InfosLigneSet* tabInfosLigneSet){
+    char buffer[100000];
+
+    int row = 0;
+    int column = 0;
+    double info;
+
+
+    while (fgets(buffer,
+                    100000, fp)) {
+        column = 0;
+        row++;
+
+        // To avoid printing of column
+        // names in file can be changed
+        // according to need    
+        
+        if (row == 1) continue;
+
+        // Splitting the data
+        char* value = strtok(buffer, ", ");
+
+        while (value) {
+            switch(column){
+                case 0:
+                    tabInfosLigneSet[row-2].mouvement = atoi(value);
+                break;
+                case 1:
+                    tabInfosLigneSet[row-2].genre = atoi(value);
+                break;
+                case 2:
+                    tabInfosLigneSet[row-2].index = atoi(value);
+                break;
+                default:
+                        info = strtod(value,NULL);                            
+                        tabInfosLigneSet[row-2].tabVAcc[column-3] = info;
+            };
+            value = strtok(NULL, ", ");
+            column++;
+        }
+    } 
+}
+
+void displayResultForEachClass(int* realClasses, int* estimatedClasses, int nbTests){
+    printf("REAL CLASSES\tESTIMATED CLASSES");
+    for (int i = 0; i < nbTests; i++){
+        printf("\n%d\t\t%d", realClasses[i], estimatedClasses[i]);
+    }
+}
+
+/*
+----------------------------------------------------------------------
+    Main
+----------------------------------------------------------------------
+*/
 
 void main(void){
     int tabGenders[24];
@@ -428,8 +534,45 @@ void main(void){
             tabTrainSet[iMouvement].tabVAcc[iVacc] = 0;
         }
     }
-    lireSet("trainSet.csv", tabTrainSet);
+    lireTrainSet("trainSet.csv", tabTrainSet);
     for (int iLigne = 0; iLigne < 6; iLigne++){
         ecrirePatterns("pattern.csv", tabTrainSet[iLigne]);
+    }
+
+    /*------------------------
+            PHASE 3
+    ------------------------*/
+
+    
+    FILE* fiTest = fopen("testSet.csv", "r");
+    FILE* fiPattern = fopen("pattern.csv", "r");
+    if (fiTest && fiPattern){
+        
+        InfoLignePattern models[6];
+        lirePattern(fiPattern, models);
+        
+        InfosLigneSet testSet[36];
+        lireTestSet(fiTest, testSet);
+
+        int realClasses[36];
+        for (int i = 0; i < 36; i++){
+            realClasses[i] = testSet[i].mouvement;
+        }
+
+        int estimatedClasses[36] = {0,};
+
+        // for (int iLigne = 0; iLigne < 36; iLigne++){
+        //     for (int iVacc = 0; iVacc < 600; iVacc++){
+        //         estimatedClasses[iLigne] += pow((testSet[iLigne].tabVAcc[iVacc] - models[]),2)
+        //     }
+        // }
+
+        displayResultForEachClass(realClasses,estimatedClasses,36);
+
+
+
+    }
+    else{
+        fprintf(stderr, "erreur dans l'ouverture de fiTest ou fiPattern\n");
     }
 }
