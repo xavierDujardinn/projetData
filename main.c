@@ -472,8 +472,10 @@ void main(void){
     int index = 1;
     int iFichier;
     int iDossier = 0;
+    int iii = 0;
     while (iDossier < 15){
         iFichier = 1;
+        
 
         while (iFichier <= 24){
             strcat(path, paths[iDossier]);
@@ -520,8 +522,9 @@ void main(void){
                 break;
              };
 
-            if(iFichier % 10 == 0 || (iFichier == 3  && fmod(iDossier,3) == 0)){
-                printf("\t%s %s\n", paths[iDossier], sub);
+        if(iFichier % 10 == 0 || (iFichier == 1  && fmod(iDossier,3) == 0) || (iFichier == 8 && iDossier == 1)){
+                iii++;
+                if (iDossier == 1) printf("\t%d %s %s\n", iii, paths[iDossier], sub);
                 ecrireSet("testSet.csv", infosLigneSet); 
             }
             else{
@@ -588,7 +591,7 @@ void main(void){
                     estimatedClasses[iLigne] = iModel + 1;
                 } 
             }
-            printf("%d : %.4lf\n", iLigne + 1, dist);
+            //printf("%d : %.4lf\n", iLigne + 1, dist);
         }
 
         displayResultForEachClass(realClasses,estimatedClasses,36);
