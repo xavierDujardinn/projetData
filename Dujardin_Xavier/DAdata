@@ -1,0 +1,191 @@
+// -------------------
+//  Structures de données
+// -------------------
+
+InfosLigneSub {
+  numLigne,
+  attitudeRoll,
+  attitudePitch,
+  attitudeYaw,
+  gravityX,
+  gravityY,
+  gravityZ,
+  rotationRateX,
+  rotationRateY,
+  rotationRateZ,
+  userAccelerationX,
+  userAccelerationY,
+  userAccelerationZ,
+}
+
+InfosLigneSet {
+  mouvement,
+  genre,
+  index,
+  tabVAcc = ARRAY(600)
+}
+
+paths = {
+"dws_1/", "dws_2/", "dws_11/", "jog_9/", "jog_16/", "sit_5/", "sit_13/", "std_6/", "std_14/", "ups_3/", "ups_4/", "ups_12/", "wlk_7/", "wlk_8/", "wlk_15/"
+}
+
+// -------------------
+//  Fonctions
+// -------------------
+
+module(lireSub;path ;infoLigneSet)
+---*
+fp = open(path, 'r')
+if (fp == NULL)
+sortir "Erreur dans l'ouverture du fichier" + path
+
+else
+row = 0
+while ( le fichier a au moins encore une ligne à lire && row < 601)
+row ++
+column = 0
+if (row == 1)
+continue
+
+else
+value = séparation des valeurs de la ligne en colonnes délimitées par ","
+while(value)
+// on ne détaille que les colones qui nous intéressent dans le cadre de la phase 1
+if (column == 0)
+infosLigneSub.numLigne = value
+
+else if (column == 10)
+infosLigneSub.userAccelerationX = value
+
+else if (column == 11)
+infosLigneSub.userAccelerationY = value
+
+else if (column == 12)
+infosLigneSub.userAccelerationZ = value
+----
+value = valeur suivante dans la ligne
+column++
+----
+infosLigneSet.tabVAcc[row-2] = racine(infosLigneSub.userAccelerationX**2 + infosLigneSub.userAccelerationY**2 + infosLigneSub.userAccelerationY**2);
+----
+// sécurité si fichier compte moins de 600 lignes
+while(row < 601)
+infosLigneSet.tabVAcc[row-1] = 0; 
+row++;
+----
+----
+----
+close(fp)
+----
+
+module(initialisationSet;path;)
+---*
+fp = open(path, "w")
+
+écrire dans le fichier : "Mouvement,Genre,Index"
+i = 0
+while (i < 600)
+écrire dans le fichier : ",Vacc"
+i++
+----
+écrire dans le fichier : "\n"
+close(fp)
+----
+
+module(ecrireSet;path, infosLigneSet;)
+----*
+fp = open(path, 'a')
+if (fp == NULL)
+sortir "Erreur dans l'ouverture du fichier" + path
+
+else
+ecrire dans le fichier : infosLigneSet.mouvement + "," infosLigneSet.genre + "," infosLigneSet.index
+
+i = 0
+while (i < 600)
+if (infosLigneSet.tabVacc[i] == 0)
+break;
+else
+écrire dans le fichier : "," + infosLigneSet.tabVAcc[i]
+----
+i++
+----
+écrire dans le fichier : "\n"
+----
+close(fp)
+----
+
+module(getTabGenders;tabGenders;tabGenders)
+---*
+fp = open("data_subjects_info.csv", "r")
+if (fp == NULL) 
+sortir "Erreur dans l'ouverture du fichier" + path
+else
+row = 0
+while ( le fichier a au moins encore une ligne à lire)
+row++
+column = 0
+if (row == 1)
+continue
+else
+value = séparation des valeurs de la ligne en colonnes délimitées par ","
+while(value)
+if (column == 4)
+tabGenders[row-2] = value
+----
+value = valeur suivante dans la ligne
+column++
+----
+----
+----
+----
+close(fp)
+----
+
+// -------------------
+//  Fonction principale
+// -------------------
+
+module(main;paths;)
+---*
+tabGenders = ARRAY(24)
+getTabGenders(tabGenders)
+initialisationSet("trainSet.csv")
+initialisationSet("testSet.csv")
+path = "A_DeviceMotion_data/A_DeviceMotion_data/"
+index = 1
+iDossier = 0
+while (iDossier < 15)
+iFichier = 1
+while (iFichier < 24)
+path += paths[iDossier] + "sub_" + iFichier + ".csv"
+infosLigneSet = lireSet(path)
+infosLigneSet.genre = tabGenders[iFichier-1]
+infosLigneSet.index = index
+
+if (iDossier == 0 OR iDossier == 1 OR iDossier == 2)
+infosLigne.mouvement = 1
+else if (iDossier == 3 OR iDossier == 4)
+infosLigne.mouvement = 2
+else if (iDossier == 5 OR iDossier == 6)
+infosLigne.mouvement = 3
+else if (iDossier == 7 OR iDossier == 8)
+infosLigne.mouvement = 4
+else if (iDossier == 9 OR iDossier == 10 OR iDossier == 11)
+infosLigne.mouvement = 5
+else if (iDossier == 12 OR iDossier == 13 OR iDossier == 14)
+infosLigne.mouvement = 6
+----
+
+if (iFichier % 10 == 0 OR (iFichier == 3  AND fmod(iDossier,3) == 0) OR (iFichier == 1 && iDossier == 1))
+ecrireSet("trainSet.csv", infosLigneSet)
+else
+ecrireSet("testSet.csv", infosLigneSet)
+----
+index++
+iFichier++
+path = "A_DeviceMotion_data/A_DeviceMotion_data/"
+----
+iDossier++
+----
+----
