@@ -11,7 +11,7 @@ endwhile
 close(fichier)
 ----
 
-module(lireSet;path, infosLigne ;tabInfosLigneSet)
+module(lireTrainSet;path, infosLigne ;tabInfosLigneSet)
 ---*
 fichier = open(path)
 
@@ -87,4 +87,25 @@ endwhile
 écriture fichier "/n"
 close(fichier)
 endif
+----
+
+module(Main;;)
+---*
+module(initialisationPattern;'pattern.csv';)
+tabTrainSet = ARRAY(6)
+iMouvement = 0
+while (i < 6)
+iVacc = 0
+while(iVacc < 600)
+tabTrainSet[iMouvement].tabVacc[iVacc] = 0
+iVacc++
+----
+iMouvement++
+---- 
+module(lireTrainSet;'trainSet.csv', tabTrainSet ;tabInfosLigneSet)
+iLigne = 0
+while(iLigne < 6)
+module(ecrirePattens;'pattern.csv', tabTrainSet[iLigne];)
+iLigne++
+----
 ----

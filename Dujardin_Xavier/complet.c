@@ -489,21 +489,7 @@ void main(void){
                 break;
              };
 
-        if((iDossier == 0 && (iFichier == 7 || iFichier == 8 || iFichier == 9))
-        || (iDossier == 1 && (iFichier == 8 || iFichier == 10))
-        || (iDossier == 2 && (iFichier == 9 || iFichier == 10 || iFichier == 20))
-        || (iDossier == 3 && (iFichier == 3 || iFichier == 4 || iFichier == 5))
-        || (iDossier == 4 && (iFichier == 1 || iFichier == 10 || iFichier == 20))
-        || (iDossier == 5 && (iFichier == 3 || iFichier == 5 || iFichier == 10))
-        || (iDossier == 6 && (iFichier == 5 || iFichier == 7))
-        || (iDossier == 7 && (iFichier == 10 || iFichier == 20))
-        || (iDossier == 8 && (iFichier == 10 || iFichier == 20))
-        || (iDossier == 9 && (iFichier == 3 || iFichier == 5))
-        || (iDossier == 10 && (iFichier == 10 || iFichier == 20))
-        || (iDossier == 11 && (iFichier == 10 || iFichier == 20))
-        || (iDossier == 12 && (iFichier == 12 || iFichier == 13 || iFichier == 14))
-        || (iDossier == 13 && (iFichier == 21 || iFichier == 1))
-        || (iDossier == 14 && (iFichier == 1 || iFichier == 2))){
+        if(iFichier % 10 == 0 || (iFichier == 3  && fmod(iDossier,3) == 0) || (iFichier == 1 && iDossier == 1)){
                 iii++;
                 printf("\t%d %s %s\n", iii, paths[iDossier], sub);
                 ecrireSet("testSet.csv", infosLigneSet); 

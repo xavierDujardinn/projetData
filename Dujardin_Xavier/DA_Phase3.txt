@@ -1,0 +1,135 @@
+// -------------------
+//  Structures de données
+// -------------------
+
+InfoLignePattern {
+  mouvement,
+  vAcc = ARRAY(600)
+}
+
+// -------------------
+//  Fonctions
+// -------------------
+
+module(lirePattern;fiPattern, patterns; patterns)
+---*
+row = 0
+while ( le fichier a au moins encore une ligne à lire)
+row ++
+column = 0
+if (row == 1)
+continue
+
+else
+value = séparation des valeurs de la ligne en colonnes délimitées par ","
+while(value)
+if (column == 0)
+patterns[row-2].mouvement = value
+else
+patterns[row-2].vAcc[column-1]= value
+----
+
+value = valeur suivante dans la ligne
+column++
+----
+----
+----
+----
+
+module(lireTestSet;fiSet, tabInfosLigneSet ;tabInfosLigneSet)
+---*
+row = 0
+while ( le fichier a au moins encore une ligne à lire)
+row ++
+column = 0
+if (row == 1)
+continue
+
+else
+value = séparation des valeurs de la ligne en colonnes délimitées par ","
+while(value)
+if (column == 0)
+tabInfosLigneSet[row-2].mouvement = value
+else if (column == 1)
+tabInfosLigneSet[row-2].genre= value
+else if (column == 2)
+tabInfosLigneSet[row-2].index= value
+else
+tabInfosLigneSet[row-2].tabVAcc[column-3] = value
+----
+
+value = valeur suivante dans la ligne
+column++
+----
+----
+----
+----
+
+module(displayResultForEachClass;realClasses, estimatedClasses, nbTests;)
+---*
+sortir 'REAL CLASSES\tESTIMATED CLASSES'
+i = 0
+while (i < nbTests)
+sortir '\n' + (i+1) + ' : ' + realClasses[i] + '\t\t' + estimatedClassed[i]
+i++
+----
+----
+
+module(displayAccuracy;realClasses, estimatedClasses, nbTests;)
+---*
+accuracy = 0
+i = 0
+while( i < nbTests)
+if (realClasses[i] == estimatedClasses[i]) 
+accuracy++
+----
+nbTests++
+----
+----
+
+module(Main;;)
+---*
+fiTest = open('testSet.csv', 'r')
+fiPattern = open('pattern.csv', 'r')
+if (fiTest && fiPattern)
+models = ARRAY(6)
+module(lirePattern;fiPattern, models ;models)
+testSet = ARRAY(36)
+module(lireTestSet;fiTest, testSet ;testSet)
+
+realClasses = ARRAY(36)
+i = 0
+while(i < 36)
+realClasses[i] = testSet[i].mouvement
+i++
+----
+
+estimatedClasses[36] = {0,}
+iLigne = 0
+while(iLigne < 36)
+dist = HV
+iModel = 0
+while(iModel < 6)
+temp = 0
+iVacc = 0
+while(iVacc < 600)
+temp += (testSet[iLigne].tabVAcc[iVacc] - models[iModel].vAcc[iVacc])**2
+iVacc++
+----
+temp = sqrt(temp)
+if (temp <= dist)
+dist = temp
+estimatedClasses[iLigne] = iModel + 1
+----
+iModel++
+----
+iLigne++
+---- 
+
+displayResultForEachClass(realClasses,estimatedClasses,36)
+displayAccuracy(realClasses,estimatedClasses,36)
+
+else
+sortir 'erreur dans l'ouverture de fiTest ou fiPattern'
+----
+----
